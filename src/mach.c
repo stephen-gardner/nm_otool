@@ -6,13 +6,37 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/28 21:42:54 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/29 04:50:42 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <ranlib.h>
 #include "ft_nm.h"
 
-static t_bool		valid_header(t_bin *bin, t_obj *obj)
+uint32_t		get_ncmds(t_obj *obj)
+{
+	t_mh		*head;
+	t_mh64		*head_64;
+
+	if (obj->is_64)
+	{
+		head_64 = (t_mh64 *)obj->pos;
+		if (obj->is_rev)
+			ft_revbytes(obj->pos, sizeof(t_mh64));
+		obj->pos += sizeof(t_mh64);
+		return (head_64->ncmds);
+	}
+	else
+	{
+		head = (t_mh *)obj->pos;
+		if (obj->is_rev)
+			ft_revbytes(obj->pos, sizeof(t_mh));
+		obj->pos += sizeof(t_mh);
+		return (head->ncmds);
+	}
+}
+
+static t_bool	valid_header(t_bin *bin, t_obj *obj)
 {
 	uint32_t	magic;
 
@@ -38,69 +62,10 @@ static t_bool		valid_header(t_bin *bin, t_obj *obj)
 		return (obj->pos + sizeof(t_mh) < bin->end);
 }
 
-static uint32_t		get_ncmds(t_obj *obj)
+static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
+					t_bool multi)
 {
-	t_mh		*head;
-	t_mh64		*head_64;
-	uint32_t	ncmds;
-
-	if (obj->is_64)
-	{
-		head_64 = (t_mh64 *)obj->pos;
-		if (obj->is_rev)
-			ft_revbytes(obj->pos, sizeof(t_mh64));
-		ncmds = head_64->ncmds;
-		obj->pos += sizeof(t_mh64);
-	}
-	else
-	{
-		head = (t_mh *)obj->pos;
-		if (obj->is_rev)
-			ft_revbytes((t_byte *)obj->pos, sizeof(t_mh));
-		ncmds = head->ncmds;
-		obj->pos += sizeof(t_mh);
-	}
-	return (ncmds);
-}
-
-static t_stabcmd	*find_symtab(t_bin *bin, t_obj *obj)
-{
-	t_lc		*lc;
-	t_stabcmd	*symtab;
-	uint32_t	ncmds;
-	uint32_t	i;
-
-	i = 0;
-	ncmds = get_ncmds(obj);
-	while (i++ < ncmds)
-	{
-		lc = (t_lc *)obj->pos;
-		if ((obj->pos += lc->cmdsize) >= bin->end)
-			break ;
-		if (obj->is_rev)
-			ft_revbytes((t_byte *)lc, sizeof(t_lc));
-		if (lc->cmd != LC_SYMTAB)
-			continue ;
-		symtab = (t_stabcmd *)lc;
-		if (obj->is_rev)
-		{
-			ft_revbytes((t_byte *)symtab + sizeof(t_lc),
-				sizeof(t_stabcmd) - sizeof(t_lc));
-		}
-		return (symtab);
-	}
-	return (NULL);
-}
-
-static void			print_symtab(t_stabcmd *symtab)
-{
-	ft_printf("% .16lx\n", 0);
-	UNUSED(symtab);
-}
-
-t_bool				process_object(t_bin *bin, t_obj *obj)
-{
-	t_stabcmd	*symtab;
+	t_bool	res;
 
 	obj->start = obj->pos;
 	if (!valid_header(bin, obj))
@@ -114,10 +79,35 @@ t_bool				process_object(t_bin *bin, t_obj *obj)
 		bin->pos += obj->ar_size;
 		return (TRUE);
 	}
-	if (obj->name)
-		ft_printf("\n%s(%.*s):\n", bin->path, obj->namlen, obj->name);
-	if ((symtab = find_symtab(bin, obj)))
-		print_symtab(symtab);
+	if (bin->is_ar)
+		ft_printf("%s(%.*s):\n", bin->path, obj->namlen, obj->name);
+	else if (multi)
+		ft_printf("%s:\n", bin->path);
+	res = (print_text) ? TRUE : print_symtab(bin, obj);
 	bin->pos = (bin->is_ar) ? bin->pos + obj->ar_size : bin->end;
 	return (TRUE);
+}
+
+void			process_bin(t_bin *bin, t_bool print_text, t_bool multi)
+{
+	t_obj		*obj;
+	t_bool		first;
+
+	first = TRUE;
+	while (bin->pos < bin->end)
+	{
+		if (!(obj = get_next_obj(bin)))
+			break ;
+		if (first && bin->is_ar &&
+			((!ft_memcmp(obj->name, SYMDEF, obj->namlen)
+			|| !ft_memcmp(obj->name, SYMDEF_SORTED, obj->namlen))))
+		{
+			bin->pos += obj->ar_size;
+			continue ;
+		}
+		write(STDOUT_FILENO, "\n", 1);
+		if (!process_object(bin, obj, print_text, multi))
+			break ;
+		first = FALSE;
+	}
 }

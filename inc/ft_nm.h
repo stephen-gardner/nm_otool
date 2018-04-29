@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/28 21:39:44 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/29 04:46:43 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include <ar.h>
 # include <errno.h>
 # include <mach-o/loader.h>
+# include <mach-o/nlist.h>
 # include <stdio.h>
 # include <unistd.h>
 # include "libft.h"
@@ -25,11 +26,13 @@ typedef struct mach_header		t_mh;
 typedef struct mach_header_64	t_mh64;
 typedef struct load_command		t_lc;
 typedef struct symtab_command	t_stabcmd;
+typedef struct nlist			t_nlist;
+typedef struct nlist_64			t_nlist64;
 
 # define PNAME			g_pname
 # define ERRMSG			sys_errlist[errno]
-# define NM_ERR			ft_dprintf(STDERR_FILENO, "%s: %s\n\n", PNAME, ERRMSG)
-# define NM_PERR(x, y)	ft_dprintf(STDERR_FILENO, "%s: %s %s\n\n", PNAME, x, y)
+# define NM_ERR			ft_dprintf(STDERR_FILENO, "%s: %s\n", PNAME, ERRMSG)
+# define NM_PERR(x, y)	ft_dprintf(STDERR_FILENO, "%s: %s %s\n", PNAME, x, y)
 
 typedef struct	s_obj
 {
@@ -62,13 +65,20 @@ t_bool			load_bin(t_bin *bin, char *path);
 ** mach.c
 */
 
-t_bool			process_object(t_bin *bin, t_obj *obj);
+uint32_t		get_ncmds(t_obj *obj);
+void			process_bin(t_bin *bin, t_bool print_text, t_bool multi);
+
+/*
+** symtab.c
+*/
+
+t_bool			print_symtab(t_bin *bin, t_obj *obj);
 
 /*
 ** util.c
 */
 
-t_bool			alloc_error(const char *pre, const char *err);
+t_bool			alloc_error(void);
 
 extern const char	*g_pname;
 #endif

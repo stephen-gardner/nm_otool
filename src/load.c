@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:03:14 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/28 12:50:43 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/29 01:37:24 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ t_bool			load_bin(t_bin *bin, char *path)
 	}
 	size = bstats.st_size;
 	if (!(bin->data = ft_memalloc(size)))
-		return (alloc_error(PNAME, ERRMSG));
+		return (alloc_error());
 	if (read(fd, bin->data, size) < (ssize_t)size)
 	{
 		NM_ERR;
