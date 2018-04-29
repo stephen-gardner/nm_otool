@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/28 13:14:07 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/28 21:39:44 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ typedef struct symtab_command	t_stabcmd;
 
 typedef struct	s_obj
 {
+	t_byte		*start;
 	t_byte		*pos;
 	char		*name;
 	uint32_t	namlen;

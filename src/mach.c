@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/28 21:12:17 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/28 21:42:54 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ t_bool				process_object(t_bin *bin, t_obj *obj)
 {
 	t_stabcmd	*symtab;
 
+	obj->start = obj->pos;
 	if (!valid_header(bin, obj))
 	{
 		if (!bin->is_ar)
@@ -115,8 +116,8 @@ t_bool				process_object(t_bin *bin, t_obj *obj)
 	}
 	if (obj->name)
 		ft_printf("\n%s(%.*s):\n", bin->path, obj->namlen, obj->name);
-	bin->pos += obj->ar_size;
 	if ((symtab = find_symtab(bin, obj)))
 		print_symtab(symtab);
+	bin->pos = (bin->is_ar) ? bin->pos + obj->ar_size : bin->end;
 	return (TRUE);
 }
