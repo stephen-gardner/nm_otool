@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 08:45:01 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 10:28:11 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 11:32:29 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,10 @@ int			main(int ac, char *const av[])
 
 	g_pname = av[0];
 	if (ac < 2)
+	{
+		ft_dprintf(STDERR_FILENO, "Usage: %s <object file> ...\n", PNAME);
 		return (0);
+	}
 	i = 1;
 	while (i < ac)
 	{
