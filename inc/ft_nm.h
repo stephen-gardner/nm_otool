@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 15:12:28 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 16:13:47 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ t_bool			index_segment(t_obj *obj);
 ** sort.c
 */
 
-void			sort_output(t_obj *obj, t_mchain *mchain);
+t_bool			sort_output(t_obj *obj, t_mchain *mchain);
 
 /*
 ** symtab.c

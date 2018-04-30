@@ -6,10 +6,11 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 15:07:58 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 16:13:34 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>
 #include "ft_nm.h"
 
 static t_bool		build_output(t_bin *bin, t_obj *obj, t_stabcmd *symtab,
@@ -68,6 +69,7 @@ static void			print_output(t_obj *obj, t_stabcmd *symtab,
 	t_mlink		*mlink;
 	t_nlist64	*nlist;
 	uint64_t	address;
+	char		*out;
 	char		type;
 
 	UNUSED(symtab);
@@ -76,15 +78,17 @@ static void			print_output(t_obj *obj, t_stabcmd *symtab,
 	{
 		nlist = (t_nlist64 *)mlink->ptr;
 		address = (obj->is_64) ? nlist->n_value : ((t_nlist *)nlist)->n_value;
-		type = find_type(nlist, address);
-		if (type != 'U')
-			ft_printf("%016llx", address);
+		if (!(out = ft_memalloc(LEN((char *)mlink->size) + 20)))
+			return ((void)alloc_error());
+		if ((type = find_type(nlist, address)) != 'U')
+			ft_sprintf(out, "%016llx", address);
 		else
-			ft_printf("%16s", " ");
-		ft_printf(" %c ", type);
+			ft_sprintf(out, "%16s", " ");
+		ft_sprintf(out + 16, " %c ", type);
 		if (mlink->size)
-			ft_printf("%s", (char *)mlink->size);
-		write(STDOUT_FILENO, "\n", 1);
+			ft_sprintf(out + 19, "%s", (char *)mlink->size);
+		ft_printf("%s\n", out);
+		free(out);
 		mlink = ft_mlremove(mlink);
 	}
 }
@@ -101,7 +105,7 @@ t_bool				print_symtab(t_bin *bin, t_obj *obj)
 		return (alloc_error());
 	if (!build_output(bin, obj, symtab, mchain))
 		return (FALSE);
-	sort_output(obj, mchain);
-	print_output(obj, symtab, mchain);
+	if (sort_output(obj, mchain))
+		print_output(obj, symtab, mchain);
 	return (TRUE);
 }

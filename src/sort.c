@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 14:39:08 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 15:11:40 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 16:16:39 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ static void	heap_sort(t_obj *obj, t_mlink **arr, int size)
 	}
 }
 
-void		sort_output(t_obj *obj, t_mchain *mchain)
+t_bool		sort_output(t_obj *obj, t_mchain *mchain)
 {
 	t_mlink	**arr;
 	t_mlink	*mlink;
@@ -88,7 +88,7 @@ void		sort_output(t_obj *obj, t_mchain *mchain)
 
 	i = 0;
 	if (!(arr = ft_memalloc(sizeof(t_mlink *) * (mchain->link_count + 1))))
-		return ;
+		return (alloc_error());
 	mlink = mchain->start;
 	while (i < mchain->link_count)
 	{
@@ -106,4 +106,5 @@ void		sort_output(t_obj *obj, t_mchain *mchain)
 		mlink = mlink->next;
 	}
 	free(arr);
+	return (TRUE);
 }
