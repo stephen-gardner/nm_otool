@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 08:47:17 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 12:11:38 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 13:53:46 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,16 @@
 
 static void	*find_text_section(t_mchain *mchain)
 {
-	t_sec	*section;
+	t_sec	*sect;
 	t_mlink	*mlink;
 
 	mlink = mchain->start;
 	while (mlink)
 	{
-		section = (t_sec *)mlink->ptr;
-		if (!ft_strcmp(SEG_TEXT, section->segname)
-			&& !ft_strcmp(SECT_TEXT, section->sectname))
-			return ((void *)section);
+		sect = (t_sec *)mlink->ptr;
+		if (!ft_strcmp(SEG_TEXT, sect->segname)
+			&& !ft_strcmp(SECT_TEXT, sect->sectname))
+			return ((void *)sect);
 		mlink = mlink->next;
 	}
 	return (NULL);
@@ -54,7 +54,7 @@ void		print_section(t_byte *start, t_byte *end, uint64_t addr)
 
 t_bool		print_text_section(t_bin *bin, t_obj *obj)
 {
-	void		*section;
+	void		*sect;
 	t_mchain	*mchain;
 	t_byte		*start;
 	uint64_t	size;
@@ -64,19 +64,15 @@ t_bool		print_text_section(t_bin *bin, t_obj *obj)
 		return (alloc_error());
 	if (!find_lcmd(bin, obj, ((obj->is_64) ? LC_SEGMENT_64 : LC_SEGMENT)))
 		return (TRUE);
-	ft_printf("Contents of (__TEXT,__text) section\n");
-	if (!(section = find_text_section(mchain)))
+	ft_printf("Contents of (%s,%s) section\n", SEG_TEXT, SECT_TEXT);
+	if (!(sect = find_text_section(mchain)))
 		return (TRUE);
-	if (obj->is_64)
-		start = obj->start + ((t_sec64 *)section)->offset;
-	else
-		start = obj->start + ((t_sec *)section)->offset;
-	addr = (obj->is_64) ? ((t_sec64 *)section)->addr : ((t_sec *)section)->addr;
-	size = (obj->is_64) ? ((t_sec64 *)section)->size : ((t_sec *)section)->size;
+	start = obj->start;
+	start += (obj->is_64) ? ((t_sec64 *)sect)->offset : ((t_sec *)sect)->offset;
+	addr = (obj->is_64) ? ((t_sec64 *)sect)->addr : ((t_sec *)sect)->addr;
+	size = (obj->is_64) ? ((t_sec64 *)sect)->size : ((t_sec *)sect)->size;
 	if (start + size > bin->end)
-		truncated_obj(bin, obj, TRUE);
-	else
-		print_section(start, start + size, addr);
-	clean_mchain(mchain);
+		return (truncated_obj(bin, obj, TRUE));
+	print_section(start, start + size, addr);
 	return (TRUE);
 }

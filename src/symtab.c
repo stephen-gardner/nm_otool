@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 11:57:23 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 13:41:14 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,14 +122,9 @@ t_bool				print_symtab(t_bin *bin, t_obj *obj)
 	if (!(mchain = ft_mcget("sym_table")))
 		return (alloc_error());
 	if (!build_output(bin, obj, symtab, mchain))
-	{
-		clean_mchain(mchain);
 		return (FALSE);
-	}
 	while (sort_output(obj, mchain))
 		;
 	print_output(obj, symtab, mchain);
-	clean_mchain(mchain);
-	clean_mchain(ft_mcget("sections"));
 	return (TRUE);
 }

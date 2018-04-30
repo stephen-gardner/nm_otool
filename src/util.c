@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:07:11 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 08:36:14 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 13:39:30 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,17 @@ t_bool	alloc_error(void)
 	return (FALSE);
 }
 
-void	clean_mchain(t_mchain *mchain)
+void	clean_mchains(void)
 {
-	if (!mchain)
-		return ;
-	while (mchain->start)
-		ft_mlremove(mchain->start);
-	ft_mcdel(mchain);
+	t_mchain	**mchain;
+
+	mchain = ft_mcgetall();
+	while (*mchain)
+	{
+		while ((*mchain)->start)
+			ft_mlremove((*mchain)->start);
+		ft_mcdel(*mchain);
+	}
 }
 
 int		nlist_cmp(t_obj *obj, t_mlink *m1, t_mlink *m2)

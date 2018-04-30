@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 11:13:47 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 14:00:19 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,25 @@ void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd)
 			ft_revbytes(obj->pos, lc->cmdsize);
 		if (lc->cmd == cmd)
 			res = (void *)obj->pos;
-		if ((lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
-			&& !index_segment(obj))
-			return (VBOOL(truncated_obj(bin, obj, FALSE)));
+		if (lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
+		{
+			if (!index_segment(obj))
+				return (VBOOL(truncated_obj(bin, obj, FALSE)));
+		}
 		obj->pos += lc->cmdsize;
 	}
 	return (res);
+}
+
+static void		set_ncmds(t_obj *obj)
+{
+	int	size;
+
+	size = (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh);
+	if (obj->is_rev)
+		ft_revbytes(obj->pos, size);
+	obj->ncmds = ((t_mh *)obj->pos)->ncmds;
+	obj->pos += size;
 }
 
 static t_bool	valid_header(t_bin *bin, t_obj *obj)
@@ -80,7 +93,7 @@ static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
 			bin->pos += obj->ar_size;
 			return (TRUE);
 		}
-		NM_PERR(bin->path,
+		ft_dprintf(STDERR_FILENO, "%s: %s %s\n", PNAME, bin->path,
 			"The file was not recognized as a valid object file");
 		return (FALSE);
 	}
@@ -88,12 +101,10 @@ static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
 		ft_printf("%s(%.*s):\n", bin->path, obj->namlen, obj->name);
 	else if (print_text || multi)
 		ft_printf("%s:\n", bin->path);
-	if (obj->is_rev)
-		ft_revbytes(obj->pos, (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh));
-	obj->ncmds = ((t_mh *)obj->pos)->ncmds;
-	obj->pos += (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh);
+	set_ncmds(obj);
 	res = (print_text) ? print_text_section(bin, obj) : print_symtab(bin, obj);
 	bin->pos = (bin->is_ar) ? bin->pos + obj->ar_size : bin->end;
+	clean_mchains();
 	return (res);
 }
 

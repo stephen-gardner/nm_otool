@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 07:02:59 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 11:13:20 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 13:40:25 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,5 @@ t_bool			index_segment(t_obj *obj)
 		nsects = ((t_segcmd *)obj->pos)->nsects;
 		pos = obj->pos + sizeof(t_segcmd);
 	}
-	if (!index_sections(mchain, obj, pos, nsects))
-	{
-		clean_mchain(mchain);
-		return (FALSE);
-	}
-	return (TRUE);
+	return (index_sections(mchain, obj, pos, nsects));
 }

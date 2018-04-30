@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:03:14 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 17:46:56 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 13:08:27 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ t_obj			*get_next_obj(t_bin *bin)
 	if (bin->pos + sizeof(t_ar) >= bin->end
 		|| !load_ar_obj(&obj, ar_head, bin->pos, bin->end))
 	{
-		NM_PERR(bin->path, "truncated or malformed archive");
+		ft_dprintf(STDERR_FILENO, "%s: %s %s\n", PNAME, bin->path,
+			"truncated or malformed archive");
 		return (NULL);
 	}
 	bin->pos += sizeof(t_ar);
@@ -66,7 +67,7 @@ t_bool			load_bin(t_bin *bin)
 
 	if ((fd = open(bin->path, O_RDONLY)) < 0 || fstat(fd, &bstats) < 0)
 	{
-		NM_PERR(bin->path, ERRMSG);
+		ft_dprintf(STDERR_FILENO, "%s: %s %s\n", PNAME, bin->path, ERRMSG);
 		return (FALSE);
 	}
 	size = bstats.st_size;
@@ -74,7 +75,7 @@ t_bool			load_bin(t_bin *bin)
 		return (alloc_error());
 	if (read(fd, bin->data, size) < (ssize_t)size)
 	{
-		NM_ERR;
+		ft_dprintf(STDERR_FILENO, "%s: %s\n", PNAME, ERRMSG);
 		close(fd);
 		free(bin->data);
 		return (FALSE);

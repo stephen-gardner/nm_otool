@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 11:13:33 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 13:39:27 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ typedef struct nlist_64				t_nlist64;
 
 # define PNAME			g_pname
 # define ERRMSG			sys_errlist[errno]
-# define NM_ERR			ft_dprintf(STDERR_FILENO, "%s: %s\n", PNAME, ERRMSG)
-# define NM_PERR(x, y)	ft_dprintf(STDERR_FILENO, "%s: %s %s\n", PNAME, x, y)
 
 typedef struct	s_obj
 {
@@ -98,7 +96,7 @@ t_bool			print_text_section(t_bin *bin, t_obj *obj);
 */
 
 t_bool			alloc_error(void);
-void			clean_mchain(t_mchain *mchain);
+void			clean_mchains(void);
 int				nlist_cmp(t_obj *obj, t_mlink *m1, t_mlink *m2);
 t_bool			truncated_obj(t_bin *bin, t_obj *obj, t_bool ret);
 
