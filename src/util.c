@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:07:11 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 21:23:07 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 05:30:53 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ t_bool	alloc_error(void)
 
 void	clean_mchain(t_mchain *mchain)
 {
+	if (!mchain)
+		return ;
 	while (mchain->start)
 		ft_mlremove(mchain->start);
 	ft_mcdel(mchain);

@@ -6,48 +6,70 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 21:49:58 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 06:35:00 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ranlib.h>
 #include "ft_nm.h"
 
-void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd, int size)
+static void		index_sections(t_bin *bin, t_obj *obj)
 {
+	t_mchain	*mchain;
+	t_byte		*pos;
+	int			size;
+	uint32_t	nsects;
+	uint32_t	i;
+
+	UNUSED(bin);
+	i = 0;
+	nsects = (obj->is_64) ? ((t_segcmd64 *)obj->pos)->nsects
+		: ((t_segcmd *)obj->pos)->nsects;
+	pos = obj->pos + ((obj->is_64) ? sizeof(t_segcmd64) : sizeof(t_segcmd));
+	mchain = ft_mcget("sections");
+	while (i++ < nsects)
+	{
+		size = (obj->is_64) ? sizeof(t_sec64) : sizeof(t_sec);
+		if (obj->is_rev)
+			ft_revbytes(pos, size);
+		if (obj->is_64)
+			ft_mlappend(mchain, ((t_sec64 *)pos)->segname,
+				(size_t)((t_sec64 *)pos)->sectname);
+		else
+			ft_mlappend(mchain, ((t_sec *)pos)->segname,
+				(size_t)((t_sec *)pos)->sectname);
+		pos += size;
+	}
+}
+
+void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd)
+{
+	void		*res;
 	t_lc		*lc;
 	uint32_t	i;
 
 	i = 0;
+	res = NULL;
 	while (i++ < obj->ncmds)
 	{
-		if (obj->pos + size >= bin->end)
+		lc = (t_lc *)obj->pos;
+		if (obj->pos + sizeof(t_lc) >= bin->end
+			|| obj->pos + lc->cmdsize >= bin->end)
 		{
 			truncated_obj(bin, obj, TRUE);
 			return (NULL);
 		}
 		if (obj->is_rev)
-			ft_revbytes(obj->pos, sizeof(t_lc));
-		if ((lc = (t_lc *)obj->pos)->cmd == cmd)
+			ft_revbytes(obj->pos, lc->cmdsize);
+		if (lc->cmd == cmd)
+			res = (void *)obj->pos;
+		else if (lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
 		{
-			if (obj->is_rev)
-				ft_revbytes(obj->pos + sizeof(t_lc), size - sizeof(t_lc));
-			return ((void *)obj->pos);
+			index_sections(bin, obj);
 		}
 		obj->pos += lc->cmdsize;
 	}
-	return (NULL);
-}
-
-static void		set_ncmds(t_obj *obj)
-{
-	int	size;
-
-	size = (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh);
-	if (obj->is_rev)
-		ft_revbytes(obj->pos, size);
-	obj->ncmds = ((t_mh *)obj->pos)->ncmds;
-	obj->pos += size;
+	return (res);
 }
 
 static t_bool	valid_header(t_bin *bin, t_obj *obj)
@@ -97,7 +119,10 @@ static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
 		ft_printf("%s(%.*s):\n", bin->path, obj->namlen, obj->name);
 	else if (multi)
 		ft_printf("%s:\n", bin->path);
-	set_ncmds(obj);
+	if (obj->is_rev)
+		ft_revbytes(obj->pos, (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh));
+	obj->ncmds = ((t_mh *)obj->pos)->ncmds;
+	obj->pos += (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh);
 	res = (print_text) ? TRUE : print_symtab(bin, obj);
 	bin->pos = (bin->is_ar) ? bin->pos + obj->ar_size : bin->end;
 	return (res);

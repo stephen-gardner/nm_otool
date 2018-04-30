@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 21:22:47 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 05:08:14 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,17 @@
 # include "ft_memmgr.h"
 # include "ft_printf.h"
 
-typedef struct ar_hdr			t_ar;
-typedef struct mach_header		t_mh;
-typedef struct mach_header_64	t_mh64;
-typedef struct load_command		t_lc;
-typedef struct symtab_command	t_stabcmd;
-typedef struct nlist			t_nlist;
-typedef struct nlist_64			t_nlist64;
+typedef struct ar_hdr				t_ar;
+typedef struct mach_header			t_mh;
+typedef struct mach_header_64		t_mh64;
+typedef struct load_command			t_lc;
+typedef struct section				t_sec;
+typedef struct section_64			t_sec64;
+typedef struct segment_command		t_segcmd;
+typedef struct segment_command_64	t_segcmd64;
+typedef struct symtab_command		t_stabcmd;
+typedef struct nlist				t_nlist;
+typedef struct nlist_64				t_nlist64;
 
 # define PNAME			g_pname
 # define ERRMSG			sys_errlist[errno]
@@ -67,7 +71,7 @@ t_bool			load_bin(t_bin *bin);
 ** mach.c
 */
 
-void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd, int size);
+void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd);
 void			process_bin(t_bin *bin, t_bool print_text, t_bool multi);
 
 /*
