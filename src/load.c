@@ -6,11 +6,12 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:03:14 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 01:37:24 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/29 17:46:56 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fcntl.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include "ft_nm.h"
 
@@ -57,16 +58,15 @@ t_obj			*get_next_obj(t_bin *bin)
 	return (&obj);
 }
 
-t_bool			load_bin(t_bin *bin, char *path)
+t_bool			load_bin(t_bin *bin)
 {
 	int			fd;
 	struct stat	bstats;
 	size_t		size;
 
-	bin->path = path;
-	if ((fd = open(path, O_RDONLY)) < 0 || fstat(fd, &bstats) < 0)
+	if ((fd = open(bin->path, O_RDONLY)) < 0 || fstat(fd, &bstats) < 0)
 	{
-		NM_PERR(path, ERRMSG);
+		NM_PERR(bin->path, ERRMSG);
 		return (FALSE);
 	}
 	size = bstats.st_size;
@@ -76,6 +76,7 @@ t_bool			load_bin(t_bin *bin, char *path)
 	{
 		NM_ERR;
 		close(fd);
+		free(bin->data);
 		return (FALSE);
 	}
 	close(fd);

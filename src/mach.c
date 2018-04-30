@@ -6,34 +6,48 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 04:50:42 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/29 21:49:58 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ranlib.h>
 #include "ft_nm.h"
 
-uint32_t		get_ncmds(t_obj *obj)
+void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd, int size)
 {
-	t_mh		*head;
-	t_mh64		*head_64;
+	t_lc		*lc;
+	uint32_t	i;
 
-	if (obj->is_64)
+	i = 0;
+	while (i++ < obj->ncmds)
 	{
-		head_64 = (t_mh64 *)obj->pos;
+		if (obj->pos + size >= bin->end)
+		{
+			truncated_obj(bin, obj, TRUE);
+			return (NULL);
+		}
 		if (obj->is_rev)
-			ft_revbytes(obj->pos, sizeof(t_mh64));
-		obj->pos += sizeof(t_mh64);
-		return (head_64->ncmds);
+			ft_revbytes(obj->pos, sizeof(t_lc));
+		if ((lc = (t_lc *)obj->pos)->cmd == cmd)
+		{
+			if (obj->is_rev)
+				ft_revbytes(obj->pos + sizeof(t_lc), size - sizeof(t_lc));
+			return ((void *)obj->pos);
+		}
+		obj->pos += lc->cmdsize;
 	}
-	else
-	{
-		head = (t_mh *)obj->pos;
-		if (obj->is_rev)
-			ft_revbytes(obj->pos, sizeof(t_mh));
-		obj->pos += sizeof(t_mh);
-		return (head->ncmds);
-	}
+	return (NULL);
+}
+
+static void		set_ncmds(t_obj *obj)
+{
+	int	size;
+
+	size = (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh);
+	if (obj->is_rev)
+		ft_revbytes(obj->pos, size);
+	obj->ncmds = ((t_mh *)obj->pos)->ncmds;
+	obj->pos += size;
 }
 
 static t_bool	valid_header(t_bin *bin, t_obj *obj)
@@ -70,22 +84,23 @@ static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
 	obj->start = obj->pos;
 	if (!valid_header(bin, obj))
 	{
-		if (!bin->is_ar)
+		if (bin->is_ar)
 		{
-			NM_PERR(bin->path,
-				"The file was not recognized as a valid object file");
-			return (FALSE);
+			bin->pos += obj->ar_size;
+			return (TRUE);
 		}
-		bin->pos += obj->ar_size;
-		return (TRUE);
+		NM_PERR(bin->path,
+			"The file was not recognized as a valid object file");
+		return (FALSE);
 	}
 	if (bin->is_ar)
 		ft_printf("%s(%.*s):\n", bin->path, obj->namlen, obj->name);
 	else if (multi)
 		ft_printf("%s:\n", bin->path);
+	set_ncmds(obj);
 	res = (print_text) ? TRUE : print_symtab(bin, obj);
 	bin->pos = (bin->is_ar) ? bin->pos + obj->ar_size : bin->end;
-	return (TRUE);
+	return (res);
 }
 
 void			process_bin(t_bin *bin, t_bool print_text, t_bool multi)

@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 04:46:43 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/29 21:22:47 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdio.h>
 # include <unistd.h>
 # include "libft.h"
+# include "ft_memmgr.h"
 # include "ft_printf.h"
 
 typedef struct ar_hdr			t_ar;
@@ -40,6 +41,7 @@ typedef struct	s_obj
 	t_byte		*pos;
 	char		*name;
 	uint32_t	namlen;
+	uint32_t	ncmds;
 	uint32_t	ar_size;
 	t_bool		is_64;
 	t_bool		is_rev;
@@ -59,13 +61,13 @@ typedef struct	s_bin
 */
 
 t_obj			*get_next_obj(t_bin *bin);
-t_bool			load_bin(t_bin *bin, char *path);
+t_bool			load_bin(t_bin *bin);
 
 /*
 ** mach.c
 */
 
-uint32_t		get_ncmds(t_obj *obj);
+void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd, int size);
 void			process_bin(t_bin *bin, t_bool print_text, t_bool multi);
 
 /*
@@ -79,6 +81,8 @@ t_bool			print_symtab(t_bin *bin, t_obj *obj);
 */
 
 t_bool			alloc_error(void);
+void			clean_mchain(t_mchain *mchain);
+t_bool			truncated_obj(t_bin *bin, t_obj *obj, t_bool ret);
 
 extern const char	*g_pname;
 #endif

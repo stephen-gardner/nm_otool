@@ -6,38 +6,11 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 04:57:07 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/29 21:23:30 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_memmgr.h"
 #include "ft_nm.h"
-
-static t_stabcmd	*find_symtab(t_bin *bin, t_obj *obj, uint32_t ncmds)
-{
-	t_lc		*lc;
-	uint32_t	i;
-
-	i = 0;
-	while (i++ < ncmds)
-	{
-		if (obj->pos + sizeof(t_stabcmd) >= bin->end)
-			return (NULL);
-		if (obj->is_rev)
-			ft_revbytes(obj->pos, sizeof(t_lc));
-		if ((lc = (t_lc *)obj->pos)->cmd == LC_SYMTAB)
-		{
-			if (obj->is_rev)
-			{
-				ft_revbytes(obj->pos + sizeof(t_lc),
-					sizeof(t_stabcmd) - sizeof(t_lc));
-			}
-			return ((t_stabcmd *)obj->pos);
-		}
-		obj->pos += lc->cmdsize;
-	}
-	return (NULL);
-}
 
 static t_bool		build_output(t_bin *bin, t_obj *obj, t_stabcmd *symtab,
 						t_mchain *mchain)
@@ -53,11 +26,7 @@ static t_bool		build_output(t_bin *bin, t_obj *obj, t_stabcmd *symtab,
 	{
 		size = (obj->is_64) ? sizeof(t_nlist64) : sizeof(t_nlist);
 		if (obj->pos + size > bin->end)
-		{
-			ft_dprintf(STDERR_FILENO, "%s: %s(%.*s) %s\n", PNAME, bin->path,
-				obj->namlen, obj->name, "truncated or malformed object");
-			return (TRUE);
-		}
+			return (truncated_obj(bin, obj, TRUE));
 		if (obj->is_rev)
 			ft_revbytes(obj->pos, size);
 		label = obj->start + symtab->stroff
@@ -75,7 +44,8 @@ static void			print_output(t_obj *obj, t_stabcmd *symtab,
 	t_mlink		*mlink;
 	t_nlist		*nlist;
 	t_nlist64	*nlist64;
-UNUSED(symtab);
+
+	UNUSED(symtab);
 	mlink = mchain->start;
 	while (mlink)
 	{
@@ -123,21 +93,19 @@ t_bool				print_symtab(t_bin *bin, t_obj *obj)
 {
 	t_mchain	*mchain;
 	t_stabcmd	*symtab;
-	uint32_t	ncmds;
 
-	ncmds = get_ncmds(obj);
-	if (!(symtab = find_symtab(bin, obj, ncmds)))
+	if (!(symtab = find_lcmd(bin, obj, LC_SYMTAB, sizeof(t_stabcmd))))
 		return (TRUE);
 	obj->pos = obj->start + symtab->symoff;
-	if (!(mchain = ft_mcget("__ft_nm"))
+	if (!(mchain = ft_mcget("ft_nm"))
 		|| !build_output(bin, obj, symtab, mchain))
 	{
-		ft_mcdel(mchain);
+		clean_mchain(mchain);
 		return (alloc_error());
 	}
 	while (sort_output(mchain))
 		;
 	print_output(obj, symtab, mchain);
-	ft_mcdel(mchain);
+	clean_mchain(mchain);
 	return (TRUE);
 }
