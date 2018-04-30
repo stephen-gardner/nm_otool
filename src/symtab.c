@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 07:28:29 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 08:40:25 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ static void			print_output(t_obj *obj, t_stabcmd *symtab,
 	}
 }
 
-static t_bool		sort_output(t_mchain *mchain)
+static t_bool		sort_output(t_obj *obj, t_mchain *mchain)
 {
 	t_mlink		**mlink;
 	t_mlink		*next;
@@ -99,7 +99,7 @@ static t_bool		sort_output(t_mchain *mchain)
 	mlink = &mchain->start;
 	while (*mlink && (next = (*mlink)->next))
 	{
-		if (ft_strcmp((char *)(*mlink)->size, (char *)next->size) > 0)
+		if (nlist_cmp(obj, *mlink, next) > 0)
 		{
 			(*mlink)->next = next->next;
 			next->next = *mlink;
@@ -126,7 +126,7 @@ t_bool				print_symtab(t_bin *bin, t_obj *obj)
 		clean_mchain(mchain);
 		return (FALSE);
 	}
-	while (sort_output(mchain))
+	while (sort_output(obj, mchain))
 		;
 	print_output(obj, symtab, mchain);
 	clean_mchain(mchain);

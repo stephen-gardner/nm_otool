@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 08:03:05 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 08:37:17 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ t_bool			print_symtab(t_bin *bin, t_obj *obj);
 
 t_bool			alloc_error(void);
 void			clean_mchain(t_mchain *mchain);
+int				nlist_cmp(t_obj *obj, t_mlink *m1, t_mlink *m2);
 t_bool			truncated_obj(t_bin *bin, t_obj *obj, t_bool ret);
 
 extern const char	*g_pname;

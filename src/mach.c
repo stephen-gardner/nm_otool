@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 08:02:58 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 08:13:58 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
 	}
 	if (bin->is_ar)
 		ft_printf("%s(%.*s):\n", bin->path, obj->namlen, obj->name);
-	else if (multi)
+	else if (print_text || multi)
 		ft_printf("%s:\n", bin->path);
 	if (obj->is_rev)
 		ft_revbytes(obj->pos, (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh));
@@ -114,7 +114,7 @@ void			process_bin(t_bin *bin, t_bool print_text, t_bool multi)
 			bin->pos += obj->ar_size;
 			continue ;
 		}
-		if (bin->is_ar || multi)
+		if (!print_text && (bin->is_ar || multi))
 			write(STDOUT_FILENO, "\n", 1);
 		if (!process_object(bin, obj, print_text, multi))
 			break ;
