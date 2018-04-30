@@ -1,0 +1,73 @@
+#!/usr/bin/make -f
+
+################################################################################
+# SETTINGS                                                                     #
+################################################################################
+
+NM = ft_nm
+OT = ft_otool
+CC = gcc
+CFLAGS += -Wall -Werror -Wextra #-g -fsanitize=address
+INC = -I inc -I libft/inc
+LIBFT = libft/libft.a
+SRC_DIR = src
+SRC = \
+	load\
+	mach\
+	segment\
+	symtab\
+	text\
+	util
+OBJ_DIR = obj
+SHARED_OBJ = $(patsubst %, $(OBJ_DIR)/%.o, $(SRC))
+NM_OBJ = $(OBJ_DIR)/nm_main.o
+OTOOL_OBJ = $(OBJ_DIR)/otool_main.o
+
+################################################################################
+# COLORS                                                                       #
+################################################################################
+
+COLSIZE = 50
+NC = \033[0m
+GREEN = \033[1;32m
+RED = \033[1;31m
+YELLOW = \033[1;33m
+
+################################################################################
+# RULES                                                                        #
+################################################################################
+
+all: $(NM) $(OT)
+
+$(NM): $(LIBFT) $(SHARED_OBJ) $(NM_OBJ)
+	@printf "$(YELLOW)%-$(COLSIZE)s$(NC)" "Building $@... "
+	@$(CC) $(CFLAGS) $(LIBFT) $(SHARED_OBJ) $(NM_OBJ) -o $@
+	@echo "$(GREEN)DONE$(NC)"
+
+$(OT): $(LIBFT) $(SHARED_OBJ) $(OTOOL_OBJ)
+	@printf "$(YELLOW)%-$(COLSIZE)s$(NC)" "Building $@... "
+	@$(CC) $(CFLAGS) $(LIBFT) $(SHARED_OBJ) $(OTOOL_OBJ) -o $@
+	@echo "$(GREEN)DONE$(NC)"
+
+$(LIBFT):
+	@printf "$(YELLOW)%-$(COLSIZE)s$(NC)" "Building $@... "
+	@make -C libft
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	@echo " > Compiling $<..."
+	@$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+clean:
+	@rm -rf $(OBJ_DIR)
+	@make -C libft clean
+	@echo "$(RED)Object files removed$(NC)"
+
+fclean: clean
+	@make -C libft fclean
+	@rm -f $(NM)
+	@echo "$(RED)$(NM) removed"
+	@rm -f $(OT)
+	@echo "$(OT) removed$(NC)"
+
+re: fclean all
