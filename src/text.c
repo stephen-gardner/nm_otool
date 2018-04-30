@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 08:47:17 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 10:22:51 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 10:38:12 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,11 @@ t_bool		print_text_section(t_bin *bin, t_obj *obj)
 	else
 		start = obj->start + ((t_sec *)section)->offset;
 	size = (obj->is_64) ? ((t_sec64 *)section)->size : ((t_sec *)section)->size;
+	if (start + size > bin->end)
+	{
+		clean_mchain(mchain);
+		return (truncated_obj(bin, obj, TRUE));
+	}
 	print_section(start, start + size);
 	clean_mchain(mchain);
 	return (TRUE);
