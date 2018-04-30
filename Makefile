@@ -7,7 +7,7 @@
 NM = ft_nm
 OT = ft_otool
 CC = gcc
-CFLAGS += -Wall -Werror -Wextra #-g -fsanitize=address
+CFLAGS += -Wall -Werror -Wextra -Wimplicit #-g -fsanitize=address
 INC = -I inc -I libft/inc
 LIBFT = libft/libft.a
 SRC_DIR = src
@@ -15,6 +15,7 @@ SRC = \
 	load\
 	mach\
 	segment\
+	sort\
 	symtab\
 	text\
 	util

@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:07:11 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 13:39:30 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 15:12:45 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,27 +32,6 @@ void	clean_mchains(void)
 			ft_mlremove((*mchain)->start);
 		ft_mcdel(*mchain);
 	}
-}
-
-int		nlist_cmp(t_obj *obj, t_mlink *m1, t_mlink *m2)
-{
-	uint64_t	a1;
-	uint64_t	a2;
-	int			res;
-
-	if ((res = ft_strcmp((char *)m1->size, (char *)m2->size)))
-		return (res);
-	if (obj->is_64)
-	{
-		a1 = ((t_nlist64 *)m1->ptr)->n_value;
-		a2 = ((t_nlist64 *)m2->ptr)->n_value;
-	}
-	else
-	{
-		a1 = ((t_nlist *)m1->ptr)->n_value;
-		a2 = ((t_nlist *)m2->ptr)->n_value;
-	}
-	return (a1 > a2);
 }
 
 t_bool	truncated_obj(t_bin *bin, t_obj *obj, t_bool ret)
