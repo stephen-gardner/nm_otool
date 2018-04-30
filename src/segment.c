@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 07:02:59 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 09:56:54 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 11:13:20 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,11 +66,10 @@ static t_bool	index_sections(t_mchain *mchain, t_obj *obj, t_byte *pos,
 	return (TRUE);
 }
 
-t_bool			index_segment(t_bin *bin, t_obj *obj)
+t_bool			index_segment(t_obj *obj)
 {
 	t_mchain	*mchain;
 	t_byte		*pos;
-	uint64_t	size;
 	uint32_t	nsects;
 
 	if (!(mchain = ft_mcget("sections")))
@@ -78,16 +77,14 @@ t_bool			index_segment(t_bin *bin, t_obj *obj)
 	if (obj->is_64)
 	{
 		nsects = ((t_segcmd64 *)obj->pos)->nsects;
-		size = ((t_segcmd64 *)obj->pos)->filesize;
 		pos = obj->pos + sizeof(t_segcmd64);
 	}
 	else
 	{
 		nsects = ((t_segcmd *)obj->pos)->nsects;
-		size = ((t_segcmd *)obj->pos)->filesize;
 		pos = obj->pos + sizeof(t_segcmd);
 	}
-	if (pos + size > bin->end || !index_sections(mchain, obj, pos, nsects))
+	if (!index_sections(mchain, obj, pos, nsects))
 	{
 		clean_mchain(mchain);
 		return (FALSE);

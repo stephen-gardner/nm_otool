@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 09:23:27 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 11:13:33 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void			process_bin(t_bin *bin, t_bool print_text, t_bool multi);
 */
 
 char			find_section_symbol(uint8_t section);
-t_bool			index_segment(t_bin *bin, t_obj *obj);
+t_bool			index_segment(t_obj *obj);
 
 /*
 ** symtab.c

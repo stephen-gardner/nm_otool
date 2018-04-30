@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 10:15:51 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 11:13:47 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd)
 		if (lc->cmd == cmd)
 			res = (void *)obj->pos;
 		if ((lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
-			&& !index_segment(bin, obj))
+			&& !index_segment(obj))
 			return (VBOOL(truncated_obj(bin, obj, FALSE)));
 		obj->pos += lc->cmdsize;
 	}
