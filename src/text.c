@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 08:47:17 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 13:53:46 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 14:25:07 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ static void	*find_text_section(t_mchain *mchain)
 
 void		print_section(t_byte *start, t_byte *end, uint64_t addr)
 {
+	char		buf[68];
 	t_byte		*pos;
 	int			n;
 
@@ -39,17 +40,21 @@ void		print_section(t_byte *start, t_byte *end, uint64_t addr)
 	while (pos < end)
 	{
 		if (!n)
-			ft_printf("%016llx\t", addr + (pos - start));
-		ft_printf("%.2x ", *pos);
+			ft_sprintf(buf, "%016llx\t", addr + (pos - start));
+		ft_sprintf(buf + (n * 3) + 17, "%.2x ", *pos);
 		++pos;
 		if (++n == 16)
 		{
 			n = 0;
-			write(STDOUT_FILENO, "\n", 1);
+			ft_sprintf(buf + 65, "\n");
+			write(STDOUT_FILENO, buf, 66);
 		}
 	}
 	if (n)
-		write(STDOUT_FILENO, "\n", 1);
+	{
+		ft_sprintf(buf + (n * 3) + 17, "\n");
+		write(STDOUT_FILENO, buf, (n * 3) + 18);
+	}
 }
 
 t_bool		print_text_section(t_bin *bin, t_obj *obj)
