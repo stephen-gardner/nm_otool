@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 05:08:14 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 08:03:05 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,13 @@ t_bool			load_bin(t_bin *bin);
 
 void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd);
 void			process_bin(t_bin *bin, t_bool print_text, t_bool multi);
+
+/*
+** segment.c
+*/
+
+char			find_section_symbol(uint8_t section);
+t_bool			index_segment(t_bin *bin, t_obj *obj);
 
 /*
 ** symtab.c

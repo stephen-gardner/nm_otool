@@ -6,41 +6,14 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 06:35:00 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 08:02:58 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ranlib.h>
 #include "ft_nm.h"
 
-static void		index_sections(t_bin *bin, t_obj *obj)
-{
-	t_mchain	*mchain;
-	t_byte		*pos;
-	int			size;
-	uint32_t	nsects;
-	uint32_t	i;
-
-	UNUSED(bin);
-	i = 0;
-	nsects = (obj->is_64) ? ((t_segcmd64 *)obj->pos)->nsects
-		: ((t_segcmd *)obj->pos)->nsects;
-	pos = obj->pos + ((obj->is_64) ? sizeof(t_segcmd64) : sizeof(t_segcmd));
-	mchain = ft_mcget("sections");
-	while (i++ < nsects)
-	{
-		size = (obj->is_64) ? sizeof(t_sec64) : sizeof(t_sec);
-		if (obj->is_rev)
-			ft_revbytes(pos, size);
-		if (obj->is_64)
-			ft_mlappend(mchain, ((t_sec64 *)pos)->segname,
-				(size_t)((t_sec64 *)pos)->sectname);
-		else
-			ft_mlappend(mchain, ((t_sec *)pos)->segname,
-				(size_t)((t_sec *)pos)->sectname);
-		pos += size;
-	}
-}
+#define VBOOL(x)	(void *)((unsigned long)x)
 
 void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd)
 {
@@ -55,18 +28,14 @@ void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd)
 		lc = (t_lc *)obj->pos;
 		if (obj->pos + sizeof(t_lc) >= bin->end
 			|| obj->pos + lc->cmdsize >= bin->end)
-		{
-			truncated_obj(bin, obj, TRUE);
-			return (NULL);
-		}
+			return (VBOOL(truncated_obj(bin, obj, FALSE)));
 		if (obj->is_rev)
 			ft_revbytes(obj->pos, lc->cmdsize);
 		if (lc->cmd == cmd)
 			res = (void *)obj->pos;
-		else if (lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
-		{
-			index_sections(bin, obj);
-		}
+		else if ((lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
+			&& !index_segment(bin, obj))
+			return (VBOOL(truncated_obj(bin, obj, FALSE)));
 		obj->pos += lc->cmdsize;
 	}
 	return (res);
@@ -145,7 +114,8 @@ void			process_bin(t_bin *bin, t_bool print_text, t_bool multi)
 			bin->pos += obj->ar_size;
 			continue ;
 		}
-		write(STDOUT_FILENO, "\n", 1);
+		if (bin->is_ar || multi)
+			write(STDOUT_FILENO, "\n", 1);
 		if (!process_object(bin, obj, print_text, multi))
 			break ;
 		first = FALSE;

@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 06:51:53 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 07:28:29 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,46 +40,6 @@ static t_bool		build_output(t_bin *bin, t_obj *obj, t_stabcmd *symtab,
 		obj->pos += size;
 	}
 	return (TRUE);
-}
-
-static void			print_line(uint64_t address, char type, char *label)
-{
-	if (type != 'U')
-		ft_printf("%.16lx", address);
-	else
-		ft_printf("%16s", " ");
-	ft_printf(" %c ", type);
-	if (label)
-		ft_printf("%s", label);
-	write(STDOUT_FILENO, "\n", 1);
-}
-
-static char			find_section_symbol(uint8_t section)
-{
-	t_mlink		*mlink;
-	char		ret;
-	int			i;
-
-	i = 1;
-	ret = 'U';
-	mlink = (ft_mcget("sections"))->start;
-	while (mlink)
-	{
-		if (section == i++)
-		{
-			if (!ft_strcmp(SECT_TEXT, (char *)mlink->size))
-				ret = 'T';
-			else if (!ft_strcmp(SECT_DATA, (char *)mlink->size))
-				ret = 'D';
-			else if (!ft_strcmp(SECT_BSS, (char *)mlink->size))
-				ret = 'B';
-			else
-				ret = 'S';
-			break ;
-		}
-		mlink = mlink->next;
-	}
-	return (ret);
 }
 
 static char			find_type(t_nlist64 *nlist, uint64_t address)
@@ -117,7 +77,14 @@ static void			print_output(t_obj *obj, t_stabcmd *symtab,
 		nlist = (t_nlist64 *)mlink->ptr;
 		address = (obj->is_64) ? nlist->n_value : ((t_nlist *)nlist)->n_value;
 		type = find_type(nlist, address);
-		print_line(address, type, (char *)mlink->size);
+		if (type != 'U')
+			ft_printf("%.16lx", address);
+		else
+			ft_printf("%16s", " ");
+		ft_printf(" %c ", type);
+		if (mlink->size)
+			ft_printf("%s", (char *)mlink->size);
+		write(STDOUT_FILENO, "\n", 1);
 		mlink = ft_mlremove(mlink);
 	}
 }
