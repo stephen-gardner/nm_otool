@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 21:23:30 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/29 22:24:03 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ static t_bool		build_output(t_bin *bin, t_obj *obj, t_stabcmd *symtab,
 {
 	t_byte		*label;
 	int			size;
+	uint32_t	offset;
 	uint32_t	i;
 
 	if (!symtab->nsyms)
@@ -29,10 +30,12 @@ static t_bool		build_output(t_bin *bin, t_obj *obj, t_stabcmd *symtab,
 			return (truncated_obj(bin, obj, TRUE));
 		if (obj->is_rev)
 			ft_revbytes(obj->pos, size);
-		label = obj->start + symtab->stroff
-			+ ((t_nlist *)obj->pos)->n_un.n_strx;
+		offset = ((t_nlist *)obj->pos)->n_un.n_strx;
+		label = (offset) ? obj->start + symtab->stroff + offset : NULL;
+		if (label >= bin->end)
+			return (truncated_obj(bin, obj, TRUE));
 		if (!ft_mladd(mchain, obj->pos, (size_t)label))
-			return (FALSE);
+			return (alloc_error());
 		obj->pos += size;
 	}
 	return (TRUE);
@@ -97,11 +100,12 @@ t_bool				print_symtab(t_bin *bin, t_obj *obj)
 	if (!(symtab = find_lcmd(bin, obj, LC_SYMTAB, sizeof(t_stabcmd))))
 		return (TRUE);
 	obj->pos = obj->start + symtab->symoff;
-	if (!(mchain = ft_mcget("ft_nm"))
-		|| !build_output(bin, obj, symtab, mchain))
+	if (!(mchain = ft_mcget("ft_nm")))
+		return (alloc_error());
+	if (!build_output(bin, obj, symtab, mchain))
 	{
 		clean_mchain(mchain);
-		return (alloc_error());
+		return (FALSE);
 	}
 	while (sort_output(mchain))
 		;
