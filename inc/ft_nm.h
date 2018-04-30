@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 08:37:17 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 09:23:27 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,12 @@ t_bool			index_segment(t_bin *bin, t_obj *obj);
 */
 
 t_bool			print_symtab(t_bin *bin, t_obj *obj);
+
+/*
+** text.c
+*/
+
+t_bool			print_text_section(t_bin *bin, t_obj *obj);
 
 /*
 ** util.c

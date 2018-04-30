@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 08:13:58 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 10:15:51 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd)
 			ft_revbytes(obj->pos, lc->cmdsize);
 		if (lc->cmd == cmd)
 			res = (void *)obj->pos;
-		else if ((lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
+		if ((lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
 			&& !index_segment(bin, obj))
 			return (VBOOL(truncated_obj(bin, obj, FALSE)));
 		obj->pos += lc->cmdsize;
@@ -92,7 +92,7 @@ static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
 		ft_revbytes(obj->pos, (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh));
 	obj->ncmds = ((t_mh *)obj->pos)->ncmds;
 	obj->pos += (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh);
-	res = (print_text) ? TRUE : print_symtab(bin, obj);
+	res = (print_text) ? print_text_section(bin, obj) : print_symtab(bin, obj);
 	bin->pos = (bin->is_ar) ? bin->pos + obj->ar_size : bin->end;
 	return (res);
 }
@@ -102,6 +102,8 @@ void			process_bin(t_bin *bin, t_bool print_text, t_bool multi)
 	t_obj		*obj;
 	t_bool		first;
 
+	if (print_text && bin->is_ar)
+		ft_printf("Archive : %s\n", bin->path);
 	first = TRUE;
 	while (bin->pos < bin->end)
 	{
