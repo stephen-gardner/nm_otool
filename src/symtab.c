@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 08:40:25 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 11:57:23 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ static void			print_output(t_obj *obj, t_stabcmd *symtab,
 		address = (obj->is_64) ? nlist->n_value : ((t_nlist *)nlist)->n_value;
 		type = find_type(nlist, address);
 		if (type != 'U')
-			ft_printf("%.16lx", address);
+			ft_printf("%016llx", address);
 		else
 			ft_printf("%16s", " ");
 		ft_printf(" %c ", type);

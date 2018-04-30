@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 08:47:17 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 10:38:12 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/30 12:11:38 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ static void	*find_text_section(t_mchain *mchain)
 	return (NULL);
 }
 
-void		print_section(t_byte *start, t_byte *end)
+void		print_section(t_byte *start, t_byte *end, uint64_t addr)
 {
 	t_byte		*pos;
 	int			n;
@@ -39,7 +39,7 @@ void		print_section(t_byte *start, t_byte *end)
 	while (pos < end)
 	{
 		if (!n)
-			ft_printf("%.16lx\t", pos - start);
+			ft_printf("%016llx\t", addr + (pos - start));
 		ft_printf("%.2x ", *pos);
 		++pos;
 		if (++n == 16)
@@ -58,6 +58,7 @@ t_bool		print_text_section(t_bin *bin, t_obj *obj)
 	t_mchain	*mchain;
 	t_byte		*start;
 	uint64_t	size;
+	uint64_t	addr;
 
 	if (!(mchain = ft_mcget("sections")))
 		return (alloc_error());
@@ -70,13 +71,12 @@ t_bool		print_text_section(t_bin *bin, t_obj *obj)
 		start = obj->start + ((t_sec64 *)section)->offset;
 	else
 		start = obj->start + ((t_sec *)section)->offset;
+	addr = (obj->is_64) ? ((t_sec64 *)section)->addr : ((t_sec *)section)->addr;
 	size = (obj->is_64) ? ((t_sec64 *)section)->size : ((t_sec *)section)->size;
 	if (start + size > bin->end)
-	{
-		clean_mchain(mchain);
-		return (truncated_obj(bin, obj, TRUE));
-	}
-	print_section(start, start + size);
+		truncated_obj(bin, obj, TRUE);
+	else
+		print_section(start, start + size, addr);
 	clean_mchain(mchain);
 	return (TRUE);
 }
