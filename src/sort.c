@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 14:39:08 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 16:16:39 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/01 02:20:27 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,11 @@ static void	heap_sort(t_obj *obj, t_mlink **arr, int size)
 	t_mlink	*tmp;
 	int		i;
 
-	i = (size / 2) - 1;
-	while (i >= 0)
-		max_heapify(obj, arr, i--, size);
+	i = size / 2;
+	while (i > 0)
+		max_heapify(obj, arr, --i, size);
 	i = size - 1;
-	while (i >= 0)
+	while (i > 0)
 	{
 		tmp = arr[0];
 		arr[0] = arr[i];
