@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:02:43 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 16:13:47 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/02 01:00:32 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ typedef struct nlist_64				t_nlist64;
 
 # define PNAME			g_pname
 # define ERRMSG			sys_errlist[errno]
+# define ADDR_LEN		((obj->is_64) ? 16 : 8)
 
 typedef struct	s_obj
 {

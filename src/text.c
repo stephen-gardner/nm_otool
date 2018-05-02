@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 08:47:17 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 14:25:07 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/02 01:07:06 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,32 +29,30 @@ static void	*find_text_section(t_mchain *mchain)
 	return (NULL);
 }
 
-void		print_section(t_byte *start, t_byte *end, uint64_t addr)
+static void	print_section(t_obj *obj, t_byte *start, t_byte *end, uint64_t addr)
 {
-	char		buf[68];
-	t_byte		*pos;
-	int			n;
+	char	buf[68];
+	t_byte	*pos;
+	int		a_len;
+	int		n;
 
 	n = 0;
 	pos = start;
+	a_len = ADDR_LEN;
 	while (pos < end)
 	{
 		if (!n)
-			ft_sprintf(buf, "%016llx\t", addr + (pos - start));
-		ft_sprintf(buf + (n * 3) + 17, "%.2x ", *pos);
+			ft_sprintf(buf, "%0*llx\t", a_len, addr + (pos - start));
+		ft_sprintf(buf + (n * 3) + a_len + 1, "%.2x ", *pos);
 		++pos;
 		if (++n == 16)
 		{
 			n = 0;
-			ft_sprintf(buf + 65, "\n");
-			write(STDOUT_FILENO, buf, 66);
+			ft_printf("%.*s\n", a_len + 50, buf);
 		}
 	}
 	if (n)
-	{
-		ft_sprintf(buf + (n * 3) + 17, "\n");
-		write(STDOUT_FILENO, buf, (n * 3) + 18);
-	}
+		ft_printf("%.*s\n", a_len + (n * 3) + 2, buf);
 }
 
 t_bool		print_text_section(t_bin *bin, t_obj *obj)
@@ -78,6 +76,6 @@ t_bool		print_text_section(t_bin *bin, t_obj *obj)
 	size = (obj->is_64) ? ((t_sec64 *)sect)->size : ((t_sec *)sect)->size;
 	if (start + size > bin->end)
 		return (truncated_obj(bin, obj, TRUE));
-	print_section(start, start + size, addr);
+	print_section(obj, start, start + size, addr);
 	return (TRUE);
 }

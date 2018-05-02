@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 16:13:34 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/02 01:00:36 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,15 +78,15 @@ static void			print_output(t_obj *obj, t_stabcmd *symtab,
 	{
 		nlist = (t_nlist64 *)mlink->ptr;
 		address = (obj->is_64) ? nlist->n_value : ((t_nlist *)nlist)->n_value;
-		if (!(out = ft_memalloc(LEN((char *)mlink->size) + 20)))
+		if (!(out = ft_memalloc(LEN((char *)mlink->size) + ADDR_LEN + 4)))
 			return ((void)alloc_error());
 		if ((type = find_type(nlist, address)) != 'U')
-			ft_sprintf(out, "%016llx", address);
+			ft_sprintf(out, "%0*llx", ADDR_LEN, address);
 		else
-			ft_sprintf(out, "%16s", " ");
-		ft_sprintf(out + 16, " %c ", type);
+			ft_sprintf(out, "%*s", ADDR_LEN, " ");
+		ft_sprintf(out + ADDR_LEN, " %c ", type);
 		if (mlink->size)
-			ft_sprintf(out + 19, "%s", (char *)mlink->size);
+			ft_sprintf(out + ADDR_LEN + 3, "%s", (char *)mlink->size);
 		ft_printf("%s\n", out);
 		free(out);
 		mlink = ft_mlremove(mlink);
