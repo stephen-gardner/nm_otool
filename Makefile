@@ -17,6 +17,8 @@ SRC = \
 	segment\
 	sort\
 	symtab\
+	swap_headers\
+	swap_sections\
 	text\
 	util
 OBJ_DIR = obj

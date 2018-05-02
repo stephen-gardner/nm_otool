@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 07:02:59 by sgardner          #+#    #+#             */
-/*   Updated: 2018/05/02 01:20:12 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/02 16:01:33 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,20 +48,18 @@ static char		get_symbol(char *name)
 static t_bool	index_sections(t_mchain *mchain, t_obj *obj, t_byte *pos,
 					uint32_t nsects)
 {
-	int			size;
 	uint32_t	i;
 	char		sym;
 
 	i = 0;
-	size = (obj->is_64) ? sizeof(t_sec64) : sizeof(t_sec);
 	while (i++ < nsects)
 	{
 		if (obj->is_rev)
-			ft_revbytes(pos + 32, size - 32);
+			rev_sec(obj);
 		sym = get_symbol(((t_sec *)pos)->sectname);
 		if (!ft_mlappend(mchain, pos, (size_t)sym))
 			return (FALSE);
-		pos += size;
+		pos += (obj->is_64) ? sizeof(t_sec64) : sizeof(t_sec);
 	}
 	return (TRUE);
 }
@@ -74,6 +72,8 @@ t_bool			index_segment(t_obj *obj)
 
 	if (!(mchain = ft_mcget("sections")))
 		return (FALSE);
+	if (obj->is_rev)
+		rev_segcmd(obj);
 	if (obj->is_64)
 	{
 		nsects = ((t_segcmd64 *)obj->pos)->nsects;

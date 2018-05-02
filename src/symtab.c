@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/29 00:20:45 by sgardner          #+#    #+#             */
-/*   Updated: 2018/05/02 01:00:36 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/02 16:03:12 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static t_bool		build_output(t_bin *bin, t_obj *obj, t_stabcmd *symtab,
 		if (obj->pos + size > bin->end)
 			return (truncated_obj(bin, obj, TRUE));
 		if (obj->is_rev)
-			ft_revbytes(obj->pos, size);
+			rev_nlist(obj);
 		offset = ((t_nlist *)obj->pos)->n_un.n_strx;
 		label = (offset > 0) ? obj->start + symtab->stroff + offset : NULL;
 		if (label >= bin->end)

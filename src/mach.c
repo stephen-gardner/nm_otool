@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/27 22:04:24 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 14:00:19 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/02 16:09:50 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd)
 			|| obj->pos + lc->cmdsize >= bin->end)
 			return (VBOOL(truncated_obj(bin, obj, FALSE)));
 		if (obj->is_rev)
-			ft_revbytes(obj->pos, lc->cmdsize);
+			rev_lc(obj);
 		if (lc->cmd == cmd)
 			res = (void *)obj->pos;
 		if (lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
@@ -43,43 +43,6 @@ void			*find_lcmd(t_bin *bin, t_obj *obj, uint32_t cmd)
 	return (res);
 }
 
-static void		set_ncmds(t_obj *obj)
-{
-	int	size;
-
-	size = (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh);
-	if (obj->is_rev)
-		ft_revbytes(obj->pos, size);
-	obj->ncmds = ((t_mh *)obj->pos)->ncmds;
-	obj->pos += size;
-}
-
-static t_bool	valid_header(t_bin *bin, t_obj *obj)
-{
-	uint32_t	magic;
-
-	if (obj->pos + sizeof(uint32_t) >= bin->end)
-		return (FALSE);
-	magic = *(uint32_t *)obj->pos;
-	if (magic == MH_MAGIC)
-		;
-	else if (magic == MH_CIGAM)
-		obj->is_rev = TRUE;
-	else if (magic == MH_MAGIC_64)
-		obj->is_64 = TRUE;
-	else if (magic == MH_CIGAM_64)
-	{
-		obj->is_64 = TRUE;
-		obj->is_rev = TRUE;
-	}
-	else
-		return (FALSE);
-	if (obj->is_64)
-		return (obj->pos + sizeof(t_mh64) < bin->end);
-	else
-		return (obj->pos + sizeof(t_mh) < bin->end);
-}
-
 static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
 					t_bool multi)
 {
@@ -89,19 +52,19 @@ static t_bool	process_object(t_bin *bin, t_obj *obj, t_bool print_text,
 	if (!valid_header(bin, obj))
 	{
 		if (bin->is_ar)
-		{
 			bin->pos += obj->ar_size;
-			return (TRUE);
-		}
 		ft_dprintf(STDERR_FILENO, "%s: %s %s\n", PNAME, bin->path,
 			"The file was not recognized as a valid object file");
-		return (FALSE);
+		return (bin->is_ar);
 	}
 	if (bin->is_ar)
 		ft_printf("%s(%.*s):\n", bin->path, obj->namlen, obj->name);
 	else if (print_text || multi)
 		ft_printf("%s:\n", bin->path);
-	set_ncmds(obj);
+	if (obj->is_rev)
+		rev_mh(obj);
+	obj->ncmds = ((t_mh *)obj->pos)->ncmds;
+	obj->pos += (obj->is_64) ? sizeof(t_mh64) : sizeof(t_mh);
 	res = (print_text) ? print_text_section(bin, obj) : print_symtab(bin, obj);
 	bin->pos = (bin->is_ar) ? bin->pos + obj->ar_size : bin->end;
 	clean_mchains();
@@ -133,4 +96,61 @@ void			process_bin(t_bin *bin, t_bool print_text, t_bool multi)
 			break ;
 		first = FALSE;
 	}
+}
+
+static t_bool	process_universal(t_bin *bin, t_obj *obj, uint32_t magic)
+{
+	t_bool		is_rev;
+	t_bool		is_64;
+
+	if (obj->pos + sizeof(t_fh) >= bin->end)
+		return (FALSE);
+	is_rev = (magic == FAT_CIGAM || magic == FAT_CIGAM_64);
+	is_64 = (magic == FAT_MAGIC_64 || magic == FAT_CIGAM_64);
+	obj->pos += sizeof(t_fh);
+	while (TRUE)
+	{
+		if (obj->pos + ((is_64) ? sizeof(t_fa64) : sizeof(t_fa)) >= bin->end)
+			return (FALSE);
+		if (is_rev)
+			rev_fa(obj);
+		if (((t_fa *)obj->pos)->cputype == CPU_TYPE_X86_64)
+			break ;
+		obj->pos += (is_64) ? sizeof(t_fa64) : sizeof(t_fa);
+	}
+	if (is_64)
+		obj->pos = obj->start + ((t_fa64 *)obj->pos)->offset;
+	else
+		obj->pos = obj->start + ((t_fa *)obj->pos)->offset;
+	obj->start = obj->pos;
+	return (valid_header(bin, obj));
+}
+
+t_bool			valid_header(t_bin *bin, t_obj *obj)
+{
+	uint32_t	magic;
+
+	if (obj->pos + sizeof(uint32_t) >= bin->end)
+		return (FALSE);
+	magic = *(uint32_t *)obj->pos;
+	if (magic == FAT_MAGIC || magic == FAT_MAGIC_64
+		|| magic == FAT_CIGAM || magic == FAT_CIGAM_64)
+		return (process_universal(bin, obj, magic));
+	else if (magic == MH_MAGIC)
+		;
+	else if (magic == MH_CIGAM)
+		obj->is_rev = TRUE;
+	else if (magic == MH_MAGIC_64)
+		obj->is_64 = TRUE;
+	else if (magic == MH_CIGAM_64)
+	{
+		obj->is_64 = TRUE;
+		obj->is_rev = TRUE;
+	}
+	else
+		return (FALSE);
+	if (obj->is_64)
+		return (obj->pos + sizeof(t_mh64) < bin->end);
+	else
+		return (obj->pos + sizeof(t_mh) < bin->end);
 }
