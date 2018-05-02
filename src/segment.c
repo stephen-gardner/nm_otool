@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/30 07:02:59 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 13:40:25 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/02 01:20:12 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static t_bool	index_sections(t_mchain *mchain, t_obj *obj, t_byte *pos,
 	while (i++ < nsects)
 	{
 		if (obj->is_rev)
-			ft_revbytes(pos, size);
+			ft_revbytes(pos + 32, size - 32);
 		sym = get_symbol(((t_sec *)pos)->sectname);
 		if (!ft_mlappend(mchain, pos, (size_t)sym))
 			return (FALSE);
