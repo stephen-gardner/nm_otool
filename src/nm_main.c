@@ -6,11 +6,12 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:23:16 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/29 18:08:33 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/03 04:35:03 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
+#include <sys/mman.h>
 #include "ft_nm.h"
 
 const char	*g_pname;
@@ -27,6 +28,7 @@ int			main(int ac, char *const av[])
 		bin.path = "a.out";
 		load_bin(&bin);
 		process_bin(&bin, FALSE, FALSE);
+		munmap(bin.data, bin.end - bin.data);
 		return (0);
 	}
 	i = 1;
@@ -37,7 +39,7 @@ int			main(int ac, char *const av[])
 		if (!load_bin(&bin))
 			continue ;
 		process_bin(&bin, FALSE, ac > 2);
-		free(bin.data);
+		munmap(bin.data, bin.end - bin.data);
 	}
 	return (0);
 }

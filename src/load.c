@@ -6,12 +6,13 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 22:03:14 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/30 13:08:27 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/05/03 04:23:12 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fcntl.h>
 #include <stdlib.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include "ft_nm.h"
 
@@ -71,14 +72,11 @@ t_bool			load_bin(t_bin *bin)
 		return (FALSE);
 	}
 	size = bstats.st_size;
-	if (!(bin->data = ft_memalloc(size)))
-		return (alloc_error());
-	if (read(fd, bin->data, size) < (ssize_t)size)
+	if ((bin->data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE,
+		fd, 0)) == MAP_FAILED)
 	{
-		ft_dprintf(STDERR_FILENO, "%s: %s\n", PNAME, ERRMSG);
 		close(fd);
-		free(bin->data);
-		return (FALSE);
+		return (alloc_error());
 	}
 	close(fd);
 	if (!ft_memcmp(bin->data, ARMAG, SARMAG))
