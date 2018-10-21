@@ -3,3 +3,5 @@
 *.a
 *.dSYM
 a.out
+ft_nm
+ft_otool
